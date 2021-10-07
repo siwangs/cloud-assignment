@@ -35,7 +35,7 @@ func DisplayInfo(h http.Handler) http.Handler {
 func headers(w http.ResponseWriter, req *http.Request) {
 
 	if req.URL.Path != "/headers" {
-		http.Error(w, "404 not found.", http.StatusNotFound)
+		errorHandler(w, req, http.StatusNotFound)
 		return
 	}
 	fmt.Printf("header get request\n")
@@ -50,11 +50,29 @@ func headers(w http.ResponseWriter, req *http.Request) {
 
 }
 
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		errorHandler(w, r, http.StatusNotFound)
+		return
+	}
+	http.Error(w, "404 not found.", http.StatusNotFound)
+}
+
+func errorHandler(w http.ResponseWriter, r *http.Request, status int) {
+	w.WriteHeader(status)
+	if status == http.StatusNotFound {
+		log.Printf("404")
+		fmt.Fprint(w, "some 404")
+	}
+}
+
 func main() {
 	fmt.Printf("Starting Server at 8080\n")
 	headerhandler := DisplayInfo(http.HandlerFunc(headers))
+
 	http.HandleFunc("/healthz", healthz)
 	http.Handle("/headers", headerhandler)
+	http.HandleFunc("/", homeHandler)
 
 	if err := http.ListenAndServe(":8080", nil); err != nil {
 		log.Fatal(err)
