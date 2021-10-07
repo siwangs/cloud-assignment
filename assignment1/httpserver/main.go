@@ -61,7 +61,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 func errorHandler(w http.ResponseWriter, r *http.Request, status int) {
 	w.WriteHeader(status)
 	if status == http.StatusNotFound {
-		log.Printf("404")
+		log.Printf("404 at %s", r.RemoteAddr)
 		fmt.Fprint(w, "some 404")
 	}
 }
